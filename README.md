@@ -1,93 +1,197 @@
 # Retail Sales & Delivery Performance Analytics
 
-**An independent Power BI / DAX portfolio project analyzing sales growth, gross profitability and order-level delivery reliability for a fictional European bicycle retailer.**
+### End-to-End Business Intelligence Project | Power BI, DAX & Data Analytics
 
-**Tech stack:** Power BI Desktop · DAX · Data modeling · Time intelligence · Python (data generation / QA)
+## Project Overview
 
-> **Data notice:** All 7,688 transaction lines and 4,500 orders in this repository are **synthetic**, deterministically generated, and do not belong to a real company. The dashboard and code are an independent demonstration of skills practiced while learning Power BI; the original DataCamp exercise file and dataset are **not** redistributed here.
+This project presents an interactive Business Intelligence solution developed using **Microsoft Power BI** to analyze retail sales, profitability, delivery performance, and operational efficiency.
 
-## What the dashboard answers
+The objective is to transform transactional data into actionable business insights through data modeling, DAX calculations, and interactive dashboards.
 
-1. **Commercial performance:** What is our revenue, gross profit and quarter-over-quarter growth?
-2. **Category profitability:** Which product families contribute most to revenue and margin?
-3. **Delivery reliability:** How often do we deliver by the promised deadline and how does performance vary by market?
+The analysis is based on a **synthetic retail dataset covering 2023–2025**, allowing the demonstration of practical data analytics and business intelligence techniques.
 
-## Preview of computed KPIs
+## Tools & Technologies
 
-See [`analysis/synthetic_insights.md`](analysis/synthetic_insights.md) for verified values and [`analysis/quarterly_kpis.csv`](analysis/quarterly_kpis.csv) for quarterly metrics. Values are illustrative and **not** real-world business findings.
+- **Microsoft Power BI Desktop** — Interactive dashboards and business reporting
+- **DAX (Data Analysis Expressions)** — Measures, calculated columns, and time intelligence
+- **Power Query** — Data cleaning, transformation, and data type management
+- **Data Modeling** — Relationships and calendar tables
+- **Data Visualization** — KPI cards, trend analysis, matrices, and interactive filters
 
-## Proposed report pages
+## Dashboard 1 — Sales Performance Overview
 
-| Page | Visuals | Decisions supported |
-|---|---|---|
-| Executive Overview | KPI cards, revenue trend, sales by category, slicers | Growth and performance monitoring |
-| Product & Profitability | Profit by category, product matrix, average order value | Product mix and margin review |
-| Delivery Operations | On-time rate, order-level lead times, quarterly trend | Delivery reliability prioritization |
+![Sales Performance Dashboard](screenshots/01_sales_overview.png)
 
-## Model
+This dashboard provides a comprehensive overview of sales and profitability.
 
-```text
-Dates (1) ──── (*) Sales
-         Date    OrderDate
+**Key features:**
+- Total revenue, gross profit, and gross margin KPIs
+- Monthly revenue trends from 2023 to 2025
+- Profitability analysis by product category
+- Interactive filtering by year and product category
+
+**Key results:**
+- Total Revenue: **€2.82M**
+- Gross Profit: **€915.60K**
+- Gross Margin: **32.47%**
+
+The analysis highlights Bikes as the largest contributor to total gross profit.
+
+## Dashboard 2 — Delivery Performance Overview
+
+![Delivery Performance Dashboard](screenshots/02_delivery_performance.png)
+
+This dashboard evaluates operational efficiency and delivery reliability.
+
+**Key features:**
+- Total order volume
+- Average delivery time
+- On-time delivery percentage
+- Number of delayed orders
+- Quarterly delivery performance trends
+- Delivery performance comparison across countries
+
+**Key results:**
+- Total Orders: **4,500**
+- Average Delivery Time: **5.55 days**
+- On-Time Delivery Rate: **83.5%**
+- Late Orders: **742**
+
+The dashboard identifies differences in delivery reliability across countries and periods, supporting operational performance monitoring.
+
+## Dashboard 3 — Business Insights & Strategic Analysis
+
+![Business Insights Dashboard](screenshots/03_business_insights.png)
+
+The third dashboard combines financial and operational indicators to support strategic decision-making.
+
+**Key features:**
+- Revenue associated with delayed deliveries
+- Percentage of revenue associated with late orders
+- Country-level profitability and delivery performance matrix
+- Revenue from delayed orders by product category
+- Interactive geographical and product filters
+
+**Key results:**
+- Revenue Associated with Late Orders: **€473.48K**
+- Revenue in Late Orders: **16.79% of total revenue**
+- France has the highest percentage of revenue associated with delayed orders (**18.17%**).
+- Spain achieves the highest on-time delivery rate (**85.5%**).
+- Bikes represents the largest product category by revenue associated with delayed orders.
+
+## Business Insights & Recommendations
+
+**1. Monitor revenue exposure to delivery delays**
+
+Approximately 16.79% of total revenue is associated with delayed orders. Monitoring this KPI can help prioritize operational improvements and customer experience initiatives.
+
+**2. Investigate regional delivery performance**
+
+France shows a relatively high proportion of revenue associated with delayed deliveries, while Spain demonstrates stronger delivery reliability. A comparison of regional logistics processes could identify opportunities for improvement.
+
+**3. Prioritize high-value product categories**
+
+Bikes generates the largest absolute revenue associated with delayed deliveries. Further analysis of delay rates, order volumes, and fulfillment processes could help identify the underlying operational drivers.
+
+These findings are descriptive and do not establish causal relationships.
+
+## Data Modeling & DAX
+
+The analytical model uses a dedicated calendar table connected to sales transactions through the order date, enabling time-based reporting.
+
+The project includes DAX calculations using:
+
+- `CALCULATE()` — Filter context manipulation
+- `DISTINCTCOUNT()` — Unique order counting
+- `AVERAGEX()` — Average delivery time at order level
+- `DATEDIFF()` — Delivery duration calculations
+- `DIVIDE()` — Safe percentage calculations
+- `YEAR()` and `QUARTER()` — Date-based analysis
+
+### Example DAX Measures
+
+**Gross Profit**
+
+```dax
+Gross Profit =
+SUM(Sales[LinePrice]) - SUM(Sales[LineCost])
 ```
 
-- `Sales` records **order lines**, not distinct orders.
-- `Dates` is a contiguous date dimension generated in DAX.
-- Measures use explicit `DISTINCTCOUNT` and order-grain iterators where appropriate.
-- Classic DAX time intelligence compares current revenue to the preceding quarter with `DATEADD`.
+**Gross Margin**
 
-## Reproduce locally
-
-1. Open **Power BI Desktop** and import [`data/retail_sales_synthetic.csv`](data/retail_sales_synthetic.csv) as `Sales`.
-2. Create the calendar from [`dax/01_date_table.dax`](dax/01_date_table.dax) and relate `Dates[Date]` to `Sales[OrderDate]`.
-3. Create calculated columns from [`dax/02_sales_calculated_columns.dax`](dax/02_sales_calculated_columns.dax) **one at a time**.
-4. Create measures from [`dax/03_measures.dax`](dax/03_measures.dax) **one at a time**.
-5. Build the three report pages; complete steps and visual mappings are in the **[Italian Power BI build guide](docs/POWER_BI_GUIDE_IT.md)**.
-6. Save your own `Retail_Sales_Delivery_Analytics.pbix` and add it to this repo once ready.
-
-### Rebuild and validate the data (Python 3, no external packages)
-
-```bash
-python src/generate_data.py
-python src/validate_and_summarize.py
+```dax
+Gross Margin % =
+DIVIDE([Gross Profit], [Total Revenue], 0)
 ```
 
-The seeded generator guarantees reproducible synthetic examples and the validator checks line uniqueness, monetary arithmetic, order consistency, and date logic.
+**On-Time Delivery Rate**
 
-## Design choices
+```dax
+On-Time Delivery % =
+DIVIDE(
+    CALCULATE(
+        DISTINCTCOUNT(Sales[OrderID]),
+        Sales[IsOnTime] = TRUE()
+    ),
+    [Order Count],
+    0
+)
+```
 
-- **Order-level vs line-level:** An average of `Sales[Order2Delivery]` over rows can overweight orders containing many products. The `Avg Promised Lead Days` measure averages over distinct order IDs instead.
-- **Financial honesty:** `Gross Profit` subtracts direct modeled costs only. It is not EBITDA or net income.
-- **Temporal correctness:** The date dimension covers full, continuous calendar years; the first quarter in the data has no prior quarter against which to calculate QoQ.
-- **No proprietary data:** Public portfolio materials use only independently generated synthetic transactions and original DAX/report design.
+**Revenue Associated with Late Orders**
 
-## Contents
+```dax
+Late-Order Revenue =
+CALCULATE(
+    [Total Revenue],
+    Sales[IsOnTime] = FALSE()
+)
+```
+
+## Repository Structure
 
 ```text
-retail-sales-delivery-powerbi/
+Retail-Sales-Delivery-Analytics/
+│
+├── Retail_Sales_Delivery_Analytics.pbix
 ├── README.md
-├── data/retail_sales_synthetic.csv
-├── src/generate_data.py
-├── src/validate_and_summarize.py
-├── dax/01_date_table.dax
-├── dax/02_sales_calculated_columns.dax
-├── dax/03_measures.dax
-├── analysis/quarterly_kpis.csv
-├── analysis/category_kpis.csv
-├── analysis/synthetic_insights.md
-└── docs/
-    ├── POWER_BI_GUIDE_IT.md
-    ├── PROJECT_BRIEF.md
-    ├── DATA_DICTIONARY.md
-    └── QA_CHECKLIST.md
+│
+├── data/
+│   └── retail_sales_synthetic.csv
+│
+└── screenshots/
+    ├── 01_sales_overview.png
+    ├── 02_delivery_performance.png
+    └── 03_business_insights.png
 ```
 
-## References
+## How to Explore the Project
 
-- [Microsoft: date table design in Power BI](https://learn.microsoft.com/en-us/power-bi/guidance/model-date-tables)
-- [Microsoft: marking a date table](https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-date-tables)
-- [Microsoft: DATEADD (DAX)](https://learn.microsoft.com/en-us/dax/dateadd-function-dax)
+1. Download or clone this repository.
+2. Open the `.pbix` file using Microsoft Power BI Desktop.
+3. If necessary, update the CSV source path in Power Query to point to the local file in `data/`.
+4. Explore the three report pages using the interactive filters.
+5. Analyze financial and operational KPIs across different years, countries, and product categories.
 
-## Author / status
+## Skills Demonstrated
 
-**Portfolio project, version 1.0 — dataset + DAX + reproducibility + build guide completed.** A native `.pbix` built with these files and dashboard screenshots can be added after completing the Power BI Desktop instructions. Dataset and source code in this repository are original examples created for learning and demonstration.
+This project demonstrates practical experience in:
+
+- Data cleaning and transformation
+- Relational data modeling
+- DAX measure development
+- KPI definition and monitoring
+- Time-series analysis
+- Financial and operational analytics
+- Interactive dashboard design
+- Data storytelling and business insight generation
+
+## Data Disclaimer
+
+This project uses **synthetically generated data** for educational and portfolio purposes. The results do not represent the financial or operational performance of a real company.
+
+The project was developed independently to apply and extend Power BI and DAX skills acquired through data analytics training.
+
+---
+
+**Developed as a personal Data Analytics & Business Intelligence portfolio project.**
